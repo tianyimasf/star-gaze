@@ -2,6 +2,9 @@
 
 A 3d viz of stars in the sky
 
+# A very ugly prototype
+https://stargazingnight.herokuapp.com/
+
 # Reference
 
 https://www.youtube.com/watch?v=hSPmj7mK6ng&ab_channel=CharmingData Introduction to Dash Plotly - Data Visualization in Python by Charming Data
