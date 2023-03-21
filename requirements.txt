@@ -1,9 +1,9 @@
-dash                 2.9.1
-dash-core-components 2.0.0
-dash-html-components 2.0.0
-dash-table           5.0.0
-Flask                2.2.3
-importlib-metadata   6.1.0
-numpy                1.24.2
-pandas               1.5.3
-plotly               5.13.1
+dash==2.9.1
+dash-core-components==2.0.0
+dash-html-components==2.0.0
+dash-table==5.0.0
+Flask==2.2.3
+importlib-metadata==6.1.0
+numpy==1.24.2
+pandas==1.5.3
+plotly==5.13.1
