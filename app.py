@@ -11,7 +11,7 @@ from helper import absmag2rad
 
 app = Dash(__name__)
 
-server = app.server
+# server = app.server
 
 # -- Import and clean data (importing csv into pandas)
 # TODO: 
@@ -27,7 +27,7 @@ data['y'] = df['dist'] * np.cos(np.radians(df['dec'])) * np.sin(np.radians(df['r
 data['z'] = df['dist'] * np.sin(np.radians(df['dec']))
 # data['color'] = [bvToRgb(color_index) for color_index in df2['ColorIndex']]
 # data['color'] = np.array([f'rgb({color_index[0]}, ({color_index[1]}, ({color_index[2]})' for color_index in data['color']]) fix later
-data['color'] = np.array(['rgb(225,225,225)' for color_index in data['x']])
+data['color'] = np.array(['rgb(255,255,255)' for color_index in data['x']])
 data['radius'] = np.array([absmag2rad(bv, absmag) for (bv, absmag) in zip(df2.ColorIndex, df.absmag)])
 data = pd.concat([data, df[['con', 'mag', 'spect', 'dist']], df2['ColorIndex']], axis=1)
 data = data.dropna()[1:]
@@ -59,11 +59,11 @@ fig = go.Figure(data=[go.Scatter3d(
         size=data.radius*2,
         color=data.color,                # set color to an array/list of desired values
         opacity=0.8,
-    )
+    ),
 )])
 # Styling
 fig.update_scenes(xaxis_visible=False, yaxis_visible=False, zaxis_visible=False) # invisible axises
-fig.update_layout(paper_bgcolor="black") # black background
+fig.update_layout(paper_bgcolor="black") # black background, resize
 fig.update_layout( # Styling hoverlabel
     hoverlabel=dict(
         bgcolor="white",
@@ -72,7 +72,7 @@ fig.update_layout( # Styling hoverlabel
     )
 )
 camera = dict(
-    eye=dict(x=0.1, y=0.1, z=1.5)
+    eye=dict(x=0.0001, y=-0.2, z=0.02)
 )
 fig.update_layout(scene_camera=camera)
 
@@ -86,12 +86,9 @@ app.layout = html.Div([
     html.Br(),
 
     html.Div(
-        html.Div(
-            children = [dcc.Graph(id='stars_plot', figure=fig, style={'width': '90vh', 'height': '100vh'})],
-        ),
-        style={'justifyContent': 'center'}
+        children = [dcc.Graph(id='stars_plot', figure=fig, style={'height': '85vh'})],
+        className='graph',
     )
-
 ])
 
 
@@ -147,5 +144,5 @@ app.layout = html.Div([
 
 
 # ------------------------------------------------------------------------------
-# if __name__ == '__main__':
-#     app.run_server(debug=True)
+if __name__ == '__main__':
+    app.run_server(debug=True)
