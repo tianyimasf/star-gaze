@@ -1,5 +1,18 @@
 
 import math
+import json
+
+f = open('./data/constellations.json')
+
+constellations = json.load(f)
+
+def const_abbr2full(abbr):
+  matches = [const.name for const in constellations if const['abbr'] is abbr]
+  if len(matches) > 0:
+    return matches[0]  # return the first full name
+  else:
+    return abbr
+
 
 def absmag2rad(bv, absmag):
     # Constants

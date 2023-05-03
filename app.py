@@ -4,7 +4,7 @@ import plotly.express as px  # (version 4.7.0 or higher)
 import plotly.graph_objects as go
 import colorsys
 from dash import Dash, dcc, html, Input, Output  # pip install dash (version 2.0.0 or higher)
-from helper import absmag2rad, bvToRgb, bv2rgb
+from helper import absmag2rad, bvToRgb, bv2rgb, const_abbr2full
 
 
 
@@ -13,12 +13,12 @@ from helper import absmag2rad, bvToRgb, bv2rgb
 
 app = Dash(__name__)
 
-server = app.server
+# server = app.server
 
 # -- Import and clean data (importing csv into pandas)
 # TODO: 
 #   1. Convert constellation name from abbr to full name
-#   2. Add more interesting info and allow subsetting with BV, mag and maybe spetral values
+#   2. Add more interesting info and allow subsetting with BV, mag and maybe spectral values
 df = pd.read_csv("./data/hygdata_v3.csv")
 
 data = pd.DataFrame()
@@ -28,12 +28,14 @@ data['x'] = np.cos(np.radians(df['dec'])) * np.cos(np.radians(df['ra']*15))
 data['y'] = np.cos(np.radians(df['dec'])) * np.sin(np.radians(df['ra']*15))
 data['z'] = np.sin(np.radians(df['dec']))
 data['color'] = [bv2rgb(color_index) for color_index in data['ci']]
+data['con'] = data['con'].apply(const_abbr2full)
 
 data = data.dropna()[1:]
 data = data[(data['mag'] < 6) & (data['ci'] > -0.4) & data['ci'] <= 2.0]
 
+lower = np.quantile(data['absmag'], 0.05)
 upper = np.quantile(data['absmag'], 0.95)
-data = data[data['absmag'] < upper]
+data = data[(data['absmag'] > lower) & data['absmag'] < upper]
 blue_stars = data[(data['ci'] > -0.4) & (data['ci'] < -0.055)]
 yellow_stars = data[data['ci'] > 0.15]
 data = pd.concat([blue_stars.sample(3000), yellow_stars.sample(3000)], axis=0)
@@ -111,18 +113,106 @@ fig.update_layout(scene_camera=camera)
 
 # ------------------------------------------------------------------------------
 # App layout
-app.layout = html.Div([
+dropdown_options = np.concatenate((["All"], np.asarray(data['con'].unique())), axis = 0)
 
-    html.H1("Star Gazing with Dash and Plotly", style={'text-align': 'center'}),
+app.layout = html.Div(
+    [
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    html.H4("⭐ Star Gazing with Dash and Plotly"),
+                                    className="header__title",
+                                ),
+                                html.Div(
+                                    [
+                                        html.P(
+                                            "Click on each star to see details. Drag to see different parts of the sky, and zoom in to see more stars."
+                                        )
+                                    ],
+                                    className="header__info pb-20",
+                                ),
+                                html.Div(
+                                    [
+                                        html.A(
+                                            "View Source Code on GitHub",
+                                            href="https://github.com/tianyimasf/star-gaze",
+                                            target="_blank",
+                                        )
+                                    ],
+                                    className="header__button",
+                                ),
+                            ],
+                            className="header pb-20",
+                        ),
+                        html.Div(
+                            [
+                                dcc.Graph(id='stars_plot', figure=fig, style={'height': '95vh'})
+                            ],
+                            className="graph__container",
+                        ),
+                    ],
+                    className="container",
+                )
+            ],
+            className="two-thirds column app__left__section",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.P(
+                                    "Click to select specific constellation(s)", className="subheader"
+                                ),
+                                dcc.Dropdown(id="constellation",
+                                                options=dropdown_options,
+                                                multi=True,
+                                                value=dropdown_options[:3],
+                                                style={'width': "100vh", "color":"grey"}
+                                            ),
+                            ]
+                        )
+                    ],
+                    className="pb-20",
+                ),
+                html.Div(
+                    [
+                        html.P("Select the Range of BV value", className="subheader"),
+                        dcc.RangeSlider(min=-0.4, max=2.0, step=0.01, value=[-0.4, 1], marks={-0.4: {"label": "-0.4"}, 2: {"label": "2.0"},
+                                            }, id='bv-range-slider'),
+                    ],
+                    className="pb-20",
+                ),
+                html.Div(
+                    [
+                        html.P("Select the Range of Absolute Magnitude value", className="subheader"),
+                        dcc.RangeSlider(min=lower, max=upper, step=0.1, value=[-7.5, 2.5], marks={lower: {"label": str(lower)}, upper: {"label": str(upper)},
+                                            }, id='absmag-range-slider'),
+                    ],
+                    className="pb-20",
+                ),
+            ],
+            className="one-third column app__right__section",
+        ),
+    ]
+    # [
 
-    html.Div(id='output_container', children=[]),
-    html.Br(),
+    # html.H1("Star Gazing with Dash and Plotly", style={'text-align': 'center'}),
 
-    html.Div(
-        children = [dcc.Graph(id='stars_plot', figure=fig, style={'height': '95vh'})],
-        className='graph',
-    )
-])
+    # html.Div(id='output_container', children=[]),
+    # html.Br(),
+
+    # html.Div(
+    #     children = [dcc.Graph(id='stars_plot', figure=fig, style={'height': '95vh'})],
+    #     className='graph',
+    # )
+    # ]
+)
 
 
 # ------------------------------------------------------------------------------
@@ -177,5 +267,5 @@ app.layout = html.Div([
 
 
 # ------------------------------------------------------------------------------
-# if __name__ == '__main__':
-#     app.run_server(debug=True)
+if __name__ == '__main__':
+    app.run_server(debug=True)
