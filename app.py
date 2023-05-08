@@ -13,7 +13,7 @@ from helper import absmag2rad, bvToRgb, bv2rgb, const_abbr2full
 
 app = Dash(__name__)
 
-# server = app.server
+server = app.server
 
 # -- Import and clean data (importing csv into pandas)
 # TODO: 
@@ -224,5 +224,5 @@ def update_figure(cons, bv_range, absmag_range):
 
 
 # ------------------------------------------------------------------------------
-if __name__ == '__main__':
-    app.run_server(debug=True)
+# if __name__ == '__main__':
+#     app.run_server(debug=True)
