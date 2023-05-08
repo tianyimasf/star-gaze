@@ -2,7 +2,7 @@
 
 A 3d viz of stars in the sky
 
-# Working Prototype
+# Online Showcase
 https://stargazingnight.herokuapp.com/
 
 # Reference
