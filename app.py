@@ -13,7 +13,7 @@ from helper import absmag2rad, bvToRgb, bv2rgb, const_abbr2full
 
 app = Dash(__name__)
 
-server = app.server
+# server = app.server
 
 # -- Import and clean data (importing csv into pandas)
 # TODO: 
@@ -58,7 +58,7 @@ def change_saturation_by(rgb, p):
     return [R, G, B]
 
 
-data['color'] = [change_saturation_by(rgb, 1.5) for rgb in data['color']]
+data['color'] = [change_saturation_by(rgb, 1.1) for rgb in data['color']]
 
 
 def is_valid_ci(ci):
@@ -66,7 +66,7 @@ def is_valid_ci(ci):
 
 data['color'] = np.array([f'rgb({color_index[0]}, {color_index[1]}, {color_index[2]})' if is_valid_ci(color_index) else None for color_index in data['color']]) # fix later
 data['radius'] = np.array([absmag2rad(bv, absmag) for (bv, absmag) in zip(data['ci'], data['absmag'])])
-data['radius'] = np.log(data['radius'] * 10 + 1)
+data['radius'] = np.exp(data['radius'] + 0.1) * 1.7
 data = data[data['radius'] > 0]
 data = data[~data['color'].isnull()]
 
@@ -93,7 +93,7 @@ def generate_fig(data):
         '<b>Distance (from sun)</b>: %{customdata[3]}<br>',
         mode='markers',
         marker=dict(
-            size=data['radius'].apply(transform_radius),
+            size=data['radius'],
             color=data['color'], 
             line=dict(width=2, color=data['color']),             # set color to an array/list of desired values
             opacity=1,
@@ -187,7 +187,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.P("Filter by possible BV value", className="subheader"),
-                        dcc.RangeSlider(min=-0.4, max=2.0, step=0.01, value=[-0.2, 1], marks={-0.4: {"label": "-0.4"}, 0: {"label": "0"}, 1: {"label": "1"}, 2: {"label": "2.0"},
+                        dcc.RangeSlider(min=-0.4, max=2.0, step=0.01, value=[-0.2, 1.8], marks={-0.4: {"label": "-0.4"}, 0: {"label": "0"}, 1: {"label": "1"}, 2: {"label": "2.0"},
                                             }, id='bv-range-slider'),
                     ],
                     className="pb-20",
@@ -195,7 +195,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.P("Filter by possible Absolute Magnitude value", className="subheader"),
-                        dcc.RangeSlider(min=lower, max=upper, step=0.1, value=[-7.5, 2.5], marks={lower: {"label": str(lower)}, 1: {"label": "1"}, 2: {"label": "2"}, upper: {"label": str(upper)},
+                        dcc.RangeSlider(min=lower, max=upper, step=0.1, value=[0, 2.5], marks={lower: {"label": str(lower)}, 1: {"label": "1"}, 2: {"label": "2"}, upper: {"label": str(upper)},
                                             }, id='absmag-range-slider'),
                     ],
                     className="pb-20",
@@ -224,5 +224,5 @@ def update_figure(cons, bv_range, absmag_range):
 
 
 # ------------------------------------------------------------------------------
-# if __name__ == '__main__':
-#     app.run_server(debug=True)
+if __name__ == '__main__':
+    app.run_server(debug=True)
