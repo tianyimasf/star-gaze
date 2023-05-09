@@ -72,7 +72,7 @@ data = data[~data['color'].isnull()]
 # Build Figure through Plotly
 
 def generate_fig(data):
-    
+
     fig = go.Figure(data=[go.Scatter3d(
         x=data['x'],
         y=data['y'],
@@ -180,7 +180,7 @@ app.layout = html.Div(
                 ),
                 html.Div(
                     [
-                        html.P("Filter by possible BV value", className="subheader"),
+                        html.P("Filter by possible BV value (color indicator)", className="subheader"),
                         dcc.RangeSlider(min=-0.4, max=2.0, step=0.01, value=[-0.2, 1.8], marks={-0.4: {"label": "-0.4"}, 0: {"label": "0"}, 1: {"label": "1"}, 2: {"label": "2.0"},
                                             }, id='bv-range-slider'),
                     ],
@@ -188,7 +188,7 @@ app.layout = html.Div(
                 ),
                 html.Div(
                     [
-                        html.P("Filter by possible Absolute Magnitude value", className="subheader"),
+                        html.P("Filter by possible Absolute Magnitude value (radius indicator)", className="subheader"),
                         dcc.RangeSlider(min=lower, max=upper, step=0.1, value=[0, 2.5], marks={lower: {"label": str(lower)}, 1: {"label": "1"}, 2: {"label": "2"}, upper: {"label": str(upper)},
                                             }, id='absmag-range-slider'),
                     ],
