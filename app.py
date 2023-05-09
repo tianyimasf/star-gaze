@@ -16,9 +16,6 @@ app = Dash(__name__)
 server = app.server
 
 # -- Import and clean data (importing csv into pandas)
-# TODO: 
-#   1. Convert constellation name from abbr to full name
-#   2. Add more interesting info and allow subsetting with BV, mag and maybe spectral values
 df = pd.read_csv("./data/hygdata_v3.csv")
 
 data = pd.DataFrame()
@@ -75,10 +72,7 @@ data = data[~data['color'].isnull()]
 # Build Figure through Plotly
 
 def generate_fig(data):
-
-    def transform_radius(r):
-        return r * 1.5 if r > 1 else r ** 3 + 0.5
-
+    
     fig = go.Figure(data=[go.Scatter3d(
         x=data['x'],
         y=data['y'],
